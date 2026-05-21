@@ -22,9 +22,37 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
   **kategorie_potraviny** — název kategorie potraviny,
   **jednotka** — jednotka množství (kg, l, ks...),
   **prumerna_cena** — průměrná cena potraviny za daný rok (Kč).
+  Zdrojové tabulky: czechia_payroll, czechia_payroll_industry_branch, czechia_price, czechia_price_category.
 
-  Zdrojové tabulky: czechia_payroll, czechia_payroll_industry_branch, czechia_price, 
-  czechia_price_category.
+  Skript:
+```sql  
+  CREATE TABLE t_denys_lopanskyi_project_SQL_primary_final AS
+SELECT
+    cp.payroll_year AS rok,
+    cpib.name AS odvětví,
+    AVG(cp.value) AS prumerna_mzda,
+    cpc.name AS kategorie_potraviny,
+    cpc.price_unit AS jednotka,
+    AVG(p.value) AS prumerna_cena
+FROM czechia_payroll cp
+JOIN czechia_payroll_industry_branch cpib 
+    ON cp.industry_branch_code = cpib.code
+JOIN czechia_price p 
+    ON cp.payroll_year = EXTRACT(YEAR FROM p.date_from)
+JOIN czechia_price_category cpc 
+    ON p.category_code = cpc.code
+WHERE cp.value_type_code = 5958
+    AND cp.payroll_year BETWEEN 2006 AND 2018
+GROUP BY
+    cp.payroll_year,
+    cpib.name,
+    cpc.name,
+    cpc.price_unit
+ORDER BY
+    cp.payroll_year,
+    cpib.name,
+    cpc.name;
+```
 
   ### Sekundární tabulka: t_denys_lopanskyi_project_SQL_secondary_final
   Tabulka obsahuje ekonomické ukazatele evropských států za období 2006–2018.
@@ -34,8 +62,26 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
   **gdp** — hrubý domácí produkt,
   **gini** — GINI koeficient,
   **population** — počet obyvatel.
-
   Zdrojové tabulky: economies, countries.
+
+  Skript:
+```sql
+CREATE TABLE t_denys_lopanskyi_project_SQL_secondary_final AS
+SELECT
+    e.country,
+    e.year,
+    e.gdp,
+    e.gini,
+    e.population
+FROM economies e
+JOIN countries c
+    ON e.country = c.country
+WHERE c.continent = 'Europe'
+    AND e.year BETWEEN 2006 AND 2018
+ORDER BY
+    e.country,
+    e.year;
+```
   
 ## Výzkumné otázky a odpovědi
 
