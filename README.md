@@ -82,7 +82,25 @@ ORDER BY
     e.country,
     e.year;
 ```
+
+  ### Kvalita dat
   
+  ### Primární tabulka
+Tabulka obsahuje 6 498 řádků bez chybějících hodnot.
+
+### Sekundární tabulka
+Tabulka obsahuje 585 řádků. Chybějící hodnoty se vyskytují u:
+- **HDP** — 37 chybějících hodnot (6 % řádků)
+- **GINI koeficient** — 124 chybějících hodnot (21 % řádků)
+- **Populace** — žádné chybějící hodnoty
+
+Chybějící hodnoty GINI koeficientu jsou způsobeny tím, že ne všechny 
+evropské státy reportují tento ukazatel každý rok. Při analýze 
+vlivu HDP (otázka č. 5) je třeba brát v úvahu že 6 % hodnot HDP 
+chybí.
+
+  
+
 ## Výzkumné otázky a odpovědi
 
   ### Otázka 1: Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
@@ -131,3 +149,18 @@ ORDER BY odvětví, rok;
 | 2014 | Těžba a dobývání | -0.79 |
 | 2015 | Výroba elektřiny, plynu... | -1.31 |
 | 2016 | Těžba a dobývání | -0.59 |
+
+ ### Odpověd:  
+ Mzdy nerostly ve všech odvětvích každý rok. Data ukazují dva období 
+poklesů:
+**1. Vlna (2009)** — přímý dopad finanční krize 2008, pokles mezd 
+ve 3 odvětvích (Těžba a dobývání, Ubytování a pohostinství, Zemědělství).
+**2. Vlna (2010–2013)** — kombinace dozvuku finanční krize a vládních 
+úsporných opatření. Nejkritičtější byl rok 2013, kdy klesly mzdy 
+v 10 odvětvích najednou. Největší pokles zaznamenalo Peněžnictví 
+a pojišťovnictví (-8.91 %) jako důsledek regulace finančního sektoru 
+po krizi.
+Po roce 2013 byly poklesy mezd již ojedinělé — týkaly se pouze 
+Těžby a dobývání (2014: -0.79 %, 2016: -0.59 %) a Výroby elektřiny 
+a plynu (2015: -1.31 %), což odráží strukturální problémy 
+v těchto odvětvích.
