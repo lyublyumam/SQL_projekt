@@ -15,7 +15,6 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
 
   ### Primární tabulka: t_denys_lopanskyi_project_SQL_primary_final
   Tabulka spojuje data o mzdách a cenách potravin za ČR za společné období 2006–2018. 
-
   Obsahuje sloupce:
   **rok** — rok měření,
   **odvětví** — název odvětví dle czechia_payroll_industry_branch,
@@ -29,7 +28,6 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
 
   ### Sekundární tabulka: t_denys_lopanskyi_project_SQL_secondary_final
   Tabulka obsahuje ekonomické ukazatele evropských států za období 2006–2018.
-
   Obsahuje sloupce:
   **country** — název státu,
   **year** — rok,
@@ -38,3 +36,26 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
   **population** — počet obyvatel.
 
   Zdrojové tabulky: economies, countries.
+  
+## Výzkumné otázky a odpovědi
+
+  ### Otázka 1: Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
+
+  | Odvětví | Rok | Změna (%) |
+|---|---|---|
+| Administrativní a podpůrné činnosti|2013 |-0.36|
+| Informační a komunikační činnosti|2013 |-1.01 |
+|Kulturní, zábavní a rekreační činnosti |2011, 2013 | -0.05, -1.38|
+|Peněžnictví a pojišťovnictví | 2013|-8.91 |
+| Profesní, vědecké a technické činnosti| 2010, 2013 |-0.61, -2.91|
+| Stavebnictví| 2013 |-2.13 |
+| Těžba a dobývání|2009, 2013, 2014, 2016|-3.74, -2.85, -0.79, -0.59  |
+|Ubytování, stravování a pohostinství |2009, 2011 |-1.2, -1.11 |
+|Velkoobchod a maloobchod; opravy a údržba motorových vozidel | 2013|-0.94 |
+|Veřejná správa a obrana; povinné sociální zabezpečení |2010, 2011 | -0.33, -2.24|
+|Vzdělávání |2010 | -1.84|
+|Výroba a rozvod elektřiny, plynu, tepla a klimatiz. vzduchu |2013, 2015  |-4.37, -1.31 |
+| Zemědělství, lesnictví, rybářství|2009 |-0.62 |
+|Zásobování vodou; činnosti související s odpady a sanacemi | 2013|-0.38 |
+|Činnosti v oblasti nemovitostí |2013 |-1.69 |
+
