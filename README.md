@@ -87,21 +87,47 @@ ORDER BY
 
   ### Otázka 1: Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
 
-  | Odvětví | Rok | Změna (%) |
-|---|---|---|
-| Administrativní a podpůrné činnosti|2013 |-0.36|
-| Informační a komunikační činnosti|2013 |-1.01 |
-|Kulturní, zábavní a rekreační činnosti |2011, 2013 | -0.05, -1.38|
-|Peněžnictví a pojišťovnictví | 2013|-8.91 |
-| Profesní, vědecké a technické činnosti| 2010, 2013 |-0.61, -2.91|
-| Stavebnictví| 2013 |-2.13 |
-| Těžba a dobývání|2009, 2013, 2014, 2016|-3.74, -2.85, -0.79, -0.59  |
-|Ubytování, stravování a pohostinství |2009, 2011 |-1.2, -1.11 |
-|Velkoobchod a maloobchod; opravy a údržba motorových vozidel | 2013|-0.94 |
-|Veřejná správa a obrana; povinné sociální zabezpečení |2010, 2011 | -0.33, -2.24|
-|Vzdělávání |2010 | -1.84|
-|Výroba a rozvod elektřiny, plynu, tepla a klimatiz. vzduchu |2013, 2015  |-4.37, -1.31 |
-| Zemědělství, lesnictví, rybářství|2009 |-0.62 |
-|Zásobování vodou; činnosti související s odpady a sanacemi | 2013|-0.38 |
-|Činnosti v oblasti nemovitostí |2013 |-1.69 |
+    Skript:
+  ```sql
+    SELECT
+    odvětví,
+    rok,
+    prumerna_mzda,
+    LAG(prumerna_mzda) OVER (PARTITION BY odvětví ORDER BY rok) AS mzda_predchozi_rok,
+    ROUND(
+        (prumerna_mzda - LAG(prumerna_mzda) OVER (PARTITION BY odvětví ORDER BY rok))
+        / LAG(prumerna_mzda) OVER (PARTITION BY odvětví ORDER BY rok) * 100
+    , 2) AS zmena_procent
+FROM (
+    SELECT rok, odvětví, AVG(prumerna_mzda) AS prumerna_mzda
+    FROM t_denys_lopanskyi_project_sql_primary_final
+    GROUP BY rok, odvětví
+) sub
+ORDER BY odvětví, rok;
+```
 
+
+| Rok | Odvětví | Změna (%) |
+|---|---|---|
+| 2009 | Těžba a dobývání | -3.74 |
+| 2009 | Ubytování, stravování a pohostinství | -1.20 |
+| 2009 | Zemědělství, lesnictví, rybářství | -0.62 |
+| 2010 | Profesní, vědecké a technické činnosti | -0.61 |
+| 2010 | Veřejná správa a obrana | -0.33 |
+| 2010 | Vzdělávání | -1.84 |
+| 2011 | Kulturní, zábavní a rekreační činnosti | -0.05 |
+| 2011 | Veřejná správa a obrana | -2.24 |
+| 2013 | Peněžnictví a pojišťovnictví | -8.91 |
+| 2013 | Výroba elektřiny, plynu... | -4.37 |
+| 2013 | Stavebnictví | -2.13 |
+| 2013 | Profesní, vědecké a technické činnosti | -2.91 |
+| 2013 | Těžba a dobývání | -2.85 |
+| 2013 | Administrativní a podpůrné činnosti | -0.36 |
+| 2013 | Informační a komunikační činnosti | -1.01 |
+| 2013 | Kulturní, zábavní a rekreační činnosti | -1.38 |
+| 2013 | Velkoobchod a maloobchod | -0.94 |
+| 2013 | Zásobování vodou | -0.38 |
+| 2013 | Činnosti v oblasti nemovitostí | -1.69 |
+| 2014 | Těžba a dobývání | -0.79 |
+| 2015 | Výroba elektřiny, plynu... | -1.31 |
+| 2016 | Těžba a dobývání | -0.59 |
