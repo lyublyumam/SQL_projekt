@@ -22,6 +22,7 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
   - **kategorie_potraviny** — název kategorie potraviny,
   - **jednotka** — jednotka množství (kg, l, ks...),
   - **prumerna_cena** — průměrná cena potraviny za daný rok (Kč).
+    
   Zdrojové tabulky: czechia_payroll, czechia_payroll_industry_branch, czechia_price,
   czechia_price_category.
 
@@ -63,6 +64,7 @@ ORDER BY
   - **gdp** — hrubý domácí produkt,
   - **gini** — GINI koeficient,
   - **population** — počet obyvatel.
+    
   Zdrojové tabulky: economies, countries.
 
   Skript:
