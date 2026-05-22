@@ -26,36 +26,42 @@ Jako dodatečný materiál je připravena tabulka s HDP, GINI koeficientem a pop
   Zdrojové tabulky: czechia_payroll, czechia_payroll_industry_branch, czechia_price,
   czechia_price_category.
 
-  Skript:
-```sql  
-  CREATE TABLE t_denys_lopanskyi_project_SQL_primary_final AS
-SELECT
-    cp.payroll_year AS rok,
-    cpib.name AS odvětví,
-    AVG(cp.value) AS prumerna_mzda,
-    cpc.name AS kategorie_potraviny,
-    cpc.price_unit AS jednotka,
-    AVG(p.value) AS prumerna_cena
-FROM czechia_payroll cp
-JOIN czechia_payroll_industry_branch cpib 
-    ON cp.industry_branch_code = cpib.code
-JOIN czechia_price p 
-    ON cp.payroll_year = EXTRACT(YEAR FROM p.date_from)
-JOIN czechia_price_category cpc 
-    ON p.category_code = cpc.code
-WHERE cp.value_type_code = 5958
-    AND cp.payroll_year BETWEEN 2006 AND 2018
-GROUP BY
-    cp.payroll_year,
-    cpib.name,
-    cpc.name,
-    cpc.price_unit
-ORDER BY
-    cp.payroll_year,
-    cpib.name,
-    cpc.name;
+####  Skript:
+```sql
+CREATE TABLE t_denys_lopanskyi_project_SQL_primary_final AS
+SELECT 
+    mzdy.rok,
+    mzdy.odvětví,
+    mzdy.prumerna_mzda,
+    ceny.kategorie_potraviny,
+    ceny.jednotka,
+    ceny.prumerna_cena
+FROM (
+    SELECT 
+        cp.payroll_year AS rok,
+        cpib.name AS odvětví,
+        ROUND(AVG(cp.value)::numeric, 2) AS prumerna_mzda
+    FROM czechia_payroll cp
+    JOIN czechia_payroll_industry_branch cpib 
+        ON cp.industry_branch_code = cpib.code
+    WHERE cp.value_type_code = 5958 
+        AND cp.payroll_year BETWEEN 2006 AND 2018
+    GROUP BY cp.payroll_year, cpib.name
+) mzdy
+JOIN (
+    SELECT 
+        EXTRACT(YEAR FROM p.date_from) AS rok,
+        cpc.name AS kategorie_potraviny,
+        cpc.price_unit AS jednotka,
+        ROUND(AVG(p.value)::numeric, 2) AS prumerna_cena
+    FROM czechia_price p
+    JOIN czechia_price_category cpc 
+        ON p.category_code = cpc.code
+    WHERE EXTRACT(YEAR FROM p.date_from) BETWEEN 2006 AND 2018
+    GROUP BY EXTRACT(YEAR FROM p.date_from), cpc.name, cpc.price_unit
+) ceny ON mzdy.rok = ceny.rok
+ORDER BY mzdy.rok, mzdy.odvětví, ceny.kategorie_potraviny;
 ```
-
   ### Sekundární tabulka: t_denys_lopanskyi_project_SQL_secondary_final
   Tabulka obsahuje ekonomické ukazatele evropských států za období 2006–2018.
   Obsahuje sloupce:
@@ -67,7 +73,7 @@ ORDER BY
     
   Zdrojové tabulky: economies, countries.
 
-  Skript:
+ #### Skript:
 ```sql
 CREATE TABLE t_denys_lopanskyi_project_SQL_secondary_final AS
 SELECT
@@ -106,7 +112,7 @@ Při analýze vlivu HDP (otázka č. 5) je třeba brát v úvahu že 6 % hodnot 
 
   ### Otázka 1: Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
 
-    Skript:
+  ####  Skript:
   ```sql
     SELECT
     odvětví,
@@ -125,7 +131,7 @@ FROM (
 ORDER BY odvětví, rok;
 ```
 
-### Výstup:
+#### Výstup:
 
 | Rok | Odvětví | Změna (%) |
 |---|---|---|
@@ -152,7 +158,7 @@ ORDER BY odvětví, rok;
 | 2015 | Výroba elektřiny, plynu... | -1.31 |
 | 2016 | Těžba a dobývání | -0.59 |
 
- ### Závěr:  
+ #### Závěr:  
 
 Mzdy nerostly ve všech odvětvích každý rok. Data ukazují dvě hlavní období poklesů spojená makroekonomickým vývojem v ČR:
 - **1. vlna (2009)**: Dopad globální finanční krize, který se projevil poklesem mezd ve 3 odvětvích (Těžba a dobývání, Ubytování, stravování a pohostinství, Zemědělství).
@@ -163,7 +169,7 @@ Po roce 2013 byly poklesy mezd ojedinělé. Týkaly se pouze Těžby a dobýván
   
  ### Otázka 2: Kolik je možné si koupit litrů mléka a kilogramů chleba za    první a poslední srovnatelné období v dostupných datech cen a mezd?
 
-   Skript:
+ ####  Skript:
 ```sql
    SELECT 
     mzdy.rok,
@@ -192,7 +198,7 @@ JOIN (
 ORDER BY ceny.kategorie_potraviny, mzdy.rok;
 ```
 
-### Výstup:
+#### Výstup:
 
 | Rok | Potravina | Průměrná mzda (Kč) | Průměrná cena (Kč) | Počet kusů |
 |---|---|---|---|---|
@@ -201,7 +207,7 @@ ORDER BY ceny.kategorie_potraviny, mzdy.rok;
 |2006 | Mléko polotučné pasterované|20754 |14.44 Kč/l |1437 l |
 |2018 |Mléko polotučné pasterované | 32536|19.82 Kč/l |1642 l |
 
- ### Závěr: 
+ #### Závěr: 
 Za průměrnou mzdu bylo možné koupit více mléka i chleba v roce 2018 než v roce 2006, což naznačuje reálný růst mezd a kupní síly obyvatelstva.
 - **Chléb**: z 1 287 kg (2006) na 1 342 kg (2018) — nárůst o 4.3 %
 - **Mléko**: z 1 437 l (2006) na 1 642 l (2018) — nárůst o 14.3 %
@@ -210,7 +216,7 @@ Přestože nominální ceny obou potravin vzrostly (chléb o 50 %, mléko o 37 %
 
 ### Otázka 3: Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční       nárůst)?
 
-  Skript:
+ #### Skript:
 ```sql
 SELECT
     kategorie_potraviny,
@@ -233,7 +239,7 @@ GROUP BY kategorie_potraviny
 ORDER BY prumerna_mezirocni_zmena ASC;
 ```
 
-### Výstup:
+#### Výstup:
 
 | Kategorie potraviny | Průměrná meziroční změna (%) |
 |---|---|
@@ -265,4 +271,18 @@ ORDER BY prumerna_mezirocni_zmena ASC;
 |Máslo |6.67 |
 |Papriky |7.29 |
 
-### Závěr:
+#### Závěr:
+
+Nejpomaleji zdražující (v průměru zlevňující) potravinou byl Cukr krystalový s průměrným meziročním poklesem ceny o 1.92 %. Podobně klesala také cena Rajských jablek (-0.74 %). Dlouhodobý pokles ceny cukru souvisí s rostoucí efektivitou výroby a s postupným rušením produkčních kvót v EU.
+
+Naopak nejrychleji zdražovaly Papriky (7.29 %) a Máslo (6.67 %), což odráží jejich citlivost na sezónní výkyvy počasí a globální změny v poptávce po mléčném tuku.
+
+### Otázka 4: Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)
+
+  #### Skript:
+
+
+  #### Výstup:
+
+
+  #### Závěr:
