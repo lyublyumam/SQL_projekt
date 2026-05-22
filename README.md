@@ -125,6 +125,7 @@ FROM (
 ORDER BY odvětví, rok;
 ```
 
+### Výstup:
 
 | Rok | Odvětví | Změna (%) |
 |---|---|---|
@@ -191,6 +192,8 @@ JOIN (
 ORDER BY ceny.kategorie_potraviny, mzdy.rok;
 ```
 
+### Výstup:
+
 | Rok | Potravina | Průměrná mzda (Kč) | Průměrná cena (Kč) | Počet kusů |
 |---|---|---|---|---|
 |2006 |Chléb konzumní kmínový |20754 |16.12 Kč/kg |1287 kg |
@@ -202,6 +205,64 @@ ORDER BY ceny.kategorie_potraviny, mzdy.rok;
 Za průměrnou mzdu bylo možné koupit více mléka i chleba v roce 2018 než v roce 2006, což naznačuje reálný růst mezd a kupní síly obyvatelstva.
 - **Chléb**: z 1 287 kg (2006) na 1 342 kg (2018) — nárůst o 4.3 %
 - **Mléko**: z 1 437 l (2006) na 1 642 l (2018) — nárůst o 14.3 %
+  
+Přestože nominální ceny obou potravin vzrostly (chléb o 50 %, mléko o 37 %), mzdy rostly rychleji (56.8 %). Reálná kupní síla obyvatelstva se tak vůči těmto produktům zvýšila. Pro komplexní posouzení celkového vývoje životní úrovně bycjom měli porovnat růst mezd s celkovým indexem spotřebitelských cen, který zohledňuje širší spotřební koš domácností.
 
-Přestože nominální ceny obou potravin vzrostly (chléb o 50 %, mléko o 37 %), mzdy rostly rychleji (56.8%). To znamená, že reálná kupní síla obyvatelstva se za sledované období zvýšila.
-**Poznámka**: Výpočet vyjadřuje reálnou kupní sílu obyvatelstva vůči dvěma vybraným produktům. Pro posouzení reálného růstu životní úrovně by bylo nutné porovnat růst mezd s celkovým indexem spotřebitelských cen, který reflektuje širší spotřební koš domácností.
+### Otázka 3: Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční       nárůst)?
+
+  Skript:
+```sql
+SELECT
+    kategorie_potraviny,
+    ROUND(AVG(zmena_procent)::numeric, 2) AS prumerna_mezirocni_zmena
+FROM (
+    SELECT
+        kategorie_potraviny,
+        rok,
+        prumerna_cena_cr,
+        ROUND((
+            (prumerna_cena_cr / LAG(prumerna_cena_cr) OVER (PARTITION BY kategorie_potraviny ORDER BY rok) * 100) - 100
+        )::numeric, 2) AS zmena_procent
+    FROM (
+        SELECT rok, kategorie_potraviny, AVG(prumerna_cena) AS prumerna_cena_cr
+        FROM t_denys_lopanskyi_project_sql_primary_final
+        GROUP BY rok, kategorie_potraviny
+    ) sub
+) zmeny
+GROUP BY kategorie_potraviny
+ORDER BY prumerna_mezirocni_zmena ASC;
+```
+
+### Výstup:
+
+| Kategorie potraviny | Průměrná meziroční změna (%) |
+|---|---|
+|Cukr krystalový |-1.92 |
+|Rajská jablka červená kulatá |-0.74 |
+|Banány žluté |0.81 |
+|Vepřová peceně s kostí |0.99 |
+|Přírodní minerální voda uhličitá |1.03 |
+| Šunkový salám|1.85 |
+|Jablka konzumní |2.02 |
+|Pečivo pšeničné bílé |2.20 |
+|Hovězí maso zadní bez kosti |2.54 |
+|Kapr živý |2.60 |
+|Jakostní víno bílé |2.70 |
+|Pivo, výčepní, světlé, lahvové |2.86 |
+|Eidamská cihla |2.92 |
+|Mléko polotučné pasterované |2.98 |
+|Rostlinný roztíratelný tuk |3.23 |
+|Kuřata kuchaná celá | 3.38|
+|Pomeranče |3.60 |
+|Jogurt bílý netučný |3.96 |
+| Chléb konzumní kmínový|3.97 |
+| Konzumní brambory|4.18 |
+|Rýže loupaná dlouhozrnná |5.00 |
+|Pšeničná mouka hladká |5.24 |
+|Mrkev |5.24 |
+|Těstoviny vaječné |5.26 |
+| Vejce slepičí čerstvá|5.55 |
+|Máslo |6.67 |
+|Papriky |7.29 |
+
+### Závěr:
